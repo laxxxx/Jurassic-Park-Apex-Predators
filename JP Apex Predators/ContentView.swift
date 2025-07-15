@@ -10,16 +10,16 @@ import SwiftUI
 struct ContentView: View {
     
     let predators = Predators()
-    @State var searchText = ""
+    @State var searchPredators = ""
+    @State var isAlphabetical = false
+    @State var currentSelection = ApexPredatorType.all
     
     var filteredPredators: [ApexPredator] {
-        guard !searchText.isEmpty else {
-            return predators.apexPredators
-        }
+        predators.filter(by: currentSelection)
         
-        return predators.apexPredators.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText)
-        }
+        predators.sort(by: isAlphabetical)
+        
+        return predators.search(for: searchPredators)
     }
     
     var body: some View {
@@ -59,9 +59,34 @@ struct ContentView: View {
             }
             .scrollIndicators(.hidden)
             .navigationTitle("Apex Predators")
-            .searchable(text: $searchText)
+            .searchable(text: $searchPredators)
             .autocorrectionDisabled()
-            .animation(.default, value: searchText)
+            .animation(.default, value: searchPredators)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        withAnimation {
+                            isAlphabetical.toggle()
+                        }
+                    } label: {
+                        isAlphabetical ? Image(systemName: "film") : Image(systemName: "textformat")
+                    }
+                    .symbolEffect(.bounce, value: isAlphabetical)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Picker("Filter", selection: $currentSelection.animation()) {
+                            ForEach(ApexPredatorType.allCases) { type in
+                                Label(type.rawValue.capitalized, systemImage: type.icon)
+                            }
+                        }
+                    } label : {
+                        Image(systemName: "slider.horizontal.3")
+                    }
+                }
+            }
         }
         .preferredColorScheme(.dark)
     }
