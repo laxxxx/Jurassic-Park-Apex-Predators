@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct ContentView: View {
     
@@ -24,13 +25,16 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            List(filteredPredators) { predators in
+            List(filteredPredators) { predator in
                 NavigationLink {
-                    PredatorDetailView(predator: predators)
+                    PredatorDetailView(predator: predator,
+                                       position: .camera(
+                        MapCamera(centerCoordinate: predator.location,
+                                                  distance: 30000)))
                 } label: {
                     HStack {
                         //predator image
-                        Image(predators.image)
+                        Image(predator.image)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 100, height: 100)
@@ -38,16 +42,16 @@ struct ContentView: View {
                         
                         VStack(alignment: .leading) {
                             //name
-                            Text(predators.name)
+                            Text(predator.name)
                                 .fontWeight(.bold)
                             
                             //type
-                            Text(predators.type.rawValue.capitalized)
+                            Text(predator.type.rawValue.capitalized)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .padding(.horizontal, 13)
                                 .padding(.vertical, 5)
-                                .background(predators.type.backgroundColor)
+                                .background(predator.type.backgroundColor)
                                 .clipShape(.capsule)
                         }
                         .padding()
